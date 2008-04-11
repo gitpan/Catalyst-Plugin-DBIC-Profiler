@@ -1,21 +1,21 @@
 package Catalyst::Plugin::DBIC::Profiler;
 
-use warnings;
 use strict;
+use warnings;
 use NEXT;
 use Catalyst::Plugin::DBIC::Profiler::DebugObj;
 
 =head1 NAME
 
-Catalyst::Plugin::DBIC::Proflier - Profile time query took with DBIC in your application.
+Catalyst::Plugin::DBIC::Proflier - Profile time query took with DBIC or DBIC::Schema in your application.
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
@@ -33,12 +33,11 @@ our $VERSION = '0.01';
 
 =head1 DESCRIPTION
 
-  As indicated above load this plugin, then run your application.
-  Your query and time your query took are outputed to log file or STDERR just like below.
+As indicated above load this plugin, then run your application.This plugin output your SQL statment, time your query took and number of times your query executed just like below.
 
-  [debug] Executing
+  [debug] SQL[23]
   SELECT me.id, me.create_on, me.modify_on, me.modify_by, me.password, me.master_group_id, me.email, me.login_on FROM master_user me WHERE ( email = ? )
-  Bind Values : ( 'travail@cabane.no-ip.org' )
+  Bind Values : ( 'precure@example.com' )
   [debug] -->Query Time : 0.003177
 
   # In case of running txn_begin.
@@ -50,13 +49,26 @@ our $VERSION = '0.01';
   # In case of running txn_commit
   [debug] COMMIT
 
+  # When you use transaction(txn_begin, txn_rollback, txn_commit), set MODEL_NAME in you configuration.
+  # If you have MyApp::Model::DBIC::MyApp
+  DBIC::Profiler:
+    MODEL_NAME: DBIC::MyApp
+
 =cut
 
 sub prepare {
     my $c = shift;
+
     $c = $c->NEXT::prepare(@_);
-    $c->model->storage->debug( 1 );
-    $c->model->storage->debugobj( Catalyst::Plugin::DBIC::Profiler::DebugObj->new( log => $c->log ) );
+
+    my $model_name = $c->config->{'DBIC::Profiler'}->{MODEL_NAME};
+    unless ( $model_name ) {
+        $c->log->warn( __PACKAGE__ . ": No MODEL_NAME specified" );
+        return $c unless $model_name;
+    }
+
+    $c->model( $model_name )->storage->debug( 1 );
+    $c->model( $model_name )->storage->debugobj( Catalyst::Plugin::DBIC::Profiler::DebugObj->new( log => $c->log ) );
     return $c;
 }
 

@@ -1,14 +1,14 @@
 --- #YAML:1.0
 name:                Catalyst-Plugin-DBIC-Profiler
-version:             0.01
+version:             0.02
 abstract:            ~
 license:             ~
-generated_by:        ExtUtils::MakeMaker version 6.31
+author:              
+    - Tomoyuki SAWA <travail@cabane.no-ip.org>
+generated_by:        ExtUtils::MakeMaker version 6.44
 distribution_type:   module
 requires:     
     Test::More:                    0
 meta-spec:
-    url:     http://module-build.sourceforge.net/META-spec-v1.2.html
-    version: 1.2
-author:
-    - Tomoyuki SAWA <travail@cabane.no-ip.org>
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3
